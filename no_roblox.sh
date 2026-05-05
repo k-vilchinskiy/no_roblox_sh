@@ -1,7 +1,7 @@
 #!/bin/bash
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-LOGFILE="$DIR/system_control.log"
+LOGFILE="$DIR/roblox_block.log"
 CONFIG="$DIR/config.ini"
 TIMER_FILE="$DIR/.roblox_spent" # Скрытый файл со временем в секундах
 
