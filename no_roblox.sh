@@ -4,6 +4,7 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 LOGFILE="$DIR/roblox_block.log"
 CONFIG="$DIR/config.ini"
 TIMER_FILE="$DIR/.roblox_spent" # Скрытый файл со временем в секундах
+WARNING_FILE="$DIR/.roblox_warning_sent"
 
 # Функция сброса таймера в полночь (или при старте, если день сменился)
 check_day_reset() {
@@ -11,6 +12,7 @@ check_day_reset() {
     LAST_RESET=$(date -r "$TIMER_FILE" +%Y-%m-%d 2>/dev/null)
     if [ "$TODAY" != "$LAST_RESET" ]; then
         echo "0" > "$TIMER_FILE"
+        rm -f "$WARNING_FILE"
         echo "$(date) - Таймер сброшен на новый день" >> "$LOGFILE"
     fi
 }
@@ -23,6 +25,7 @@ while true; do
     ROBLOX_LIMIT_MIN=0
     SLEEP_START=""
     SLEEP_END=""
+    WARNING_BEFORE_SEC=300
     
     [ -f "$CONFIG" ] && source "$CONFIG"
     check_day_reset
@@ -57,6 +60,13 @@ while true; do
             pkill -9 -f "Roblox"
             osascript -e 'display notification "Лимит времени исчерпан!" with title "Система"'
         else
+            REMAINING_SEC=$((LIMIT_SEC - SPENT_SEC))
+            if [ "$LIMIT_SEC" -gt 0 ] && [ "$REMAINING_SEC" -le "$WARNING_BEFORE_SEC" ] && [ "$REMAINING_SEC" -gt 0 ] && [ ! -f "$WARNING_FILE" ]; then
+                echo "$(date '+%H:%M:%S') - Показано предупреждение: осталось 5 минут" >> "$LOGFILE"
+                osascript -e 'display notification "Осталось 5 минут Roblox" with title "Предупреждение"'
+                echo "1" > "$WARNING_FILE"
+            fi
+
             # Если еще можно играть — прибавляем 5 секунд к счетчику
             SPENT_SEC=$((SPENT_SEC + 5))
             echo "$SPENT_SEC" > "$TIMER_FILE"
