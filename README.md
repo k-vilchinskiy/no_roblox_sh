@@ -112,3 +112,53 @@ launchctl list | grep com.user.noroblox
 ```
 
 Если строки нет, сервис не запущен.
+
+## Статистика активных приложений
+
+Отдельный сервис `activity_tracker.sh` может собирать статистику активного приложения.
+Он каждые 5 секунд определяет frontmost-приложение через `osascript` и добавляет время в SQLite-базу `activity.sqlite`.
+Если macOS не разрешит `osascript` читать активное приложение, проверьте разрешения в `System Settings -> Privacy & Security -> Accessibility`.
+
+Установить LaunchAgent:
+
+```bash
+(cd activity && ./install_activity_tracker.sh)
+```
+
+Включить сервис:
+
+```bash
+(cd activity && ./enable_activity_tracker.sh)
+```
+
+Выключить сервис:
+
+```bash
+(cd activity && ./disable_activity_tracker.sh)
+```
+
+Показать статистику за сегодня:
+
+```bash
+./activity/activity_report.sh
+```
+
+Показать статистику за конкретный день:
+
+```bash
+./activity/activity_report.sh 2026-07-26
+```
+
+Показать статистику по часам за сегодня:
+
+```bash
+./activity/activity_hourly_report.sh
+```
+
+Показать статистику по часам за конкретный день:
+
+```bash
+./activity/activity_hourly_report.sh 2026-07-26
+```
+
+macOS обычно уже содержит `/usr/bin/sqlite3`, поэтому отдельная установка SQLite не нужна.

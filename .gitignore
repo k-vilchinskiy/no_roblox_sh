@@ -2,3 +2,6 @@ roblox_block.log
 roblox_error.log
 .roblox_spent
 .roblox_warning_sent
+activity.sqlite
+activity_tracker.log
+activity_tracker_error.log
