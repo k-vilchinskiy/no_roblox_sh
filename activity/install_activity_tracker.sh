@@ -27,6 +27,8 @@ cat > "$PLIST_FILE" <<EOF
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
     <key>StandardErrorPath</key>
     <string>$ERROR_LOG</string>
 </dict>

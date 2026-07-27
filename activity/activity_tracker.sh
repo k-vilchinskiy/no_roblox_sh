@@ -23,7 +23,17 @@ CREATE TABLE IF NOT EXISTS hourly_usage (
 }
 
 get_frontmost_app() {
-    /usr/bin/osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>/dev/null
+    local output status
+
+    output="$(/usr/bin/osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>&1)"
+    status=$?
+
+    if [ "$status" -ne 0 ]; then
+        echo "$(date '+%H:%M:%S') - osascript failed: $output" >> "$LOGFILE"
+        return 1
+    fi
+
+    printf "%s" "$output"
 }
 
 init_db
