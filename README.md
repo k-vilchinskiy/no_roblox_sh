@@ -116,8 +116,8 @@ launchctl list | grep com.user.noroblox
 ## Статистика активных приложений
 
 Отдельный сервис `activity_tracker.sh` может собирать статистику активного приложения.
-Он каждые 5 секунд определяет frontmost-приложение через `osascript` и добавляет время в SQLite-базу `activity.sqlite`.
-Если macOS не разрешит `osascript` читать активное приложение, проверьте разрешения в `System Settings -> Privacy & Security -> Accessibility`.
+Он каждые 5 секунд определяет frontmost-приложение через `lsappinfo` и добавляет время в SQLite-базу `activity.sqlite`.
+Если `lsappinfo` недоступен, скрипт пробует fallback через `osascript`; для него могут понадобиться разрешения в `System Settings -> Privacy & Security -> Accessibility` и `Automation`.
 LaunchAgent запускается в `gui/$UID`, чтобы у него был доступ к пользовательской графической сессии.
 
 Установить LaunchAgent:

@@ -23,13 +23,23 @@ CREATE TABLE IF NOT EXISTS hourly_usage (
 }
 
 get_frontmost_app() {
-    local output status
+    local front output status
+
+    if command -v /usr/bin/lsappinfo >/dev/null 2>&1; then
+        front="$(/usr/bin/lsappinfo front 2>/dev/null)"
+        if [ -n "$front" ]; then
+            output="$(/usr/bin/lsappinfo info -only name "$front" 2>/dev/null | sed -n 's/^"LSDisplayName"="\(.*\)"$/\1/p')"
+            if [ -n "$output" ]; then
+                printf "%s" "$output"
+                return 0
+            fi
+        fi
+    fi
 
     output="$(/usr/bin/osascript -e 'tell application "System Events" to get name of first application process whose frontmost is true' 2>&1)"
     status=$?
-
     if [ "$status" -ne 0 ]; then
-        echo "$(date '+%H:%M:%S') - osascript failed: $output" >> "$LOGFILE"
+        echo "$(date '+%H:%M:%S') - Не удалось получить активное приложение: $output" >> "$LOGFILE"
         return 1
     fi
 
