@@ -176,6 +176,11 @@ macOS обычно уже содержит `/usr/bin/sqlite3`, поэтому о
 Лимиты задаются в `activity/config.ini`:
 
 ```ini
+EXCLUDE_APPS=Finder,System Settings,Terminal,Activity Monitor
+SLEEP_START=21
+SLEEP_END=10
+WARNING_BEFORE_SEC=300
+
 [Roblox]: 180
 [Google Chrome, Safari]: 60
 [*]: 240
@@ -185,3 +190,6 @@ macOS обычно уже содержит `/usr/bin/sqlite3`, поэтому о
 Например `[Google Chrome, Safari]: 60` означает один общий час на браузеры.
 `[*]: 240` означает общий дневной лимит активного времени всех приложений.
 Имена приложений должны совпадать с именами из `activity_report.sh`.
+`SLEEP_START` и `SLEEP_END` задают комендантский интервал по часам.
+`EXCLUDE_APPS` никогда не закрываются лимитами или комендантским режимом.
+`WARNING_BEFORE_SEC=300` показывает предупреждение за 5 минут до лимита.
