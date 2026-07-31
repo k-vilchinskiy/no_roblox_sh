@@ -134,30 +134,34 @@ enforce_activity_limits() {
             apps="${BASH_REMATCH[1]}"
             limit_min="${BASH_REMATCH[2]}"
             limit_sec=$((limit_min * 60))
-            app_match=0
-            condition=""
+            if [ "$apps" = "*" ]; then
+                total_sec="$(/usr/bin/sqlite3 "$DB" "SELECT COALESCE(SUM(seconds), 0) FROM hourly_usage WHERE day = '$(sql_escape "$day")';")"
+            else
+                app_match=0
+                condition=""
 
-            IFS=',' read -ra APP_NAMES <<< "$apps"
-            for app_name in "${APP_NAMES[@]}"; do
-                app_name_trimmed="$(trim "$app_name")"
-                [ -z "$app_name_trimmed" ] && continue
+                IFS=',' read -ra APP_NAMES <<< "$apps"
+                for app_name in "${APP_NAMES[@]}"; do
+                    app_name_trimmed="$(trim "$app_name")"
+                    [ -z "$app_name_trimmed" ] && continue
 
-                if [[ "$app" == *"$app_name_trimmed"* ]]; then
-                    app_match=1
-                fi
+                    if [ "$app" = "$app_name_trimmed" ]; then
+                        app_match=1
+                    fi
 
-                app_sql="$(sql_escape "$app_name_trimmed")"
-                if [ -z "$condition" ]; then
-                    condition="app LIKE '%$app_sql%'"
-                else
-                    condition="$condition OR app LIKE '%$app_sql%'"
-                fi
-            done
+                    app_sql="$(sql_escape "$app_name_trimmed")"
+                    if [ -z "$condition" ]; then
+                        condition="app = '$app_sql'"
+                    else
+                        condition="$condition OR app = '$app_sql'"
+                    fi
+                done
 
-            [ "$app_match" -eq 0 ] && continue
-            [ -z "$condition" ] && continue
+                [ "$app_match" -eq 0 ] && continue
+                [ -z "$condition" ] && continue
 
-            total_sec="$(/usr/bin/sqlite3 "$DB" "SELECT COALESCE(SUM(seconds), 0) FROM hourly_usage WHERE day = '$(sql_escape "$day")' AND ($condition);")"
+                total_sec="$(/usr/bin/sqlite3 "$DB" "SELECT COALESCE(SUM(seconds), 0) FROM hourly_usage WHERE day = '$(sql_escape "$day")' AND ($condition);")"
+            fi
 
             if [ "$total_sec" -ge "$limit_sec" ]; then
                 echo "$(date '+%H:%M:%S') - Лимит исчерпан: $app, группа [$apps], $total_sec/$limit_sec секунд" >> "$LOGFILE"
